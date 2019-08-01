@@ -30,6 +30,10 @@ SOFTWARE.
 /* Includes */
 #include <stddef.h>
 #include "stm32f10x.h"
+#include "delay.h"
+#include "ws2812.h"
+
+
 
 
 
@@ -37,33 +41,21 @@ int main(void)
 {
 	int i = 0;
 
+
 	SystemInit();
 
 	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
 	GPIOC->CRH = GPIO_CRH_MODE13_0;
 	GPIOC->ODR |= GPIO_ODR_ODR13;
 
-	/* Infinite loop */
-	while (1)
+	//ws2812_init();
+
+	while(1)
 	{
-		/*GPIOC->ODR |= GPIO_ODR_ODR13;
-		GPIOC->ODR &= ~GPIO_ODR_ODR13;
-		GPIOC->ODR |= GPIO_ODR_ODR13;
-		GPIOC->ODR &= ~GPIO_ODR_ODR13;*/
-
-		GPIOC->ODR = GPIO_ODR_ODR13;
-				GPIOC->ODR = 0;
-				GPIOC->ODR = GPIO_ODR_ODR13;
-				GPIOC->ODR = 0;
-				GPIOC->ODR = GPIO_ODR_ODR13;
-						GPIOC->ODR = 0;
-						GPIOC->ODR = GPIO_ODR_ODR13;
-						GPIOC->ODR = 0;
-						GPIOC->ODR = GPIO_ODR_ODR13;
-								GPIOC->ODR = 0;
-								GPIOC->ODR = GPIO_ODR_ODR13;
-								GPIOC->ODR = 0;
-
+		GPIOC->BSRR = GPIO_BSRR_BS13;
+		wait_1ms(1000);
+		GPIOC->BSRR = GPIO_BSRR_BR13;
+		wait_1ms(1000);
 	}
 }
 
