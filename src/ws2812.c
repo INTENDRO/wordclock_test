@@ -16,9 +16,14 @@
  */
 void ws2812_init(void)
 {
-	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+	GPIO_InitTypeDef gpio_init;
 
-	GPIOB->CRH &= ~GPIO_CRH_CNF9;
-	GPIOB->CRH |= GPIO_CRH_MODE9;
-	GPIOB->ODR &= ~GPIO_ODR_ODR9;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+
+	gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio_init.GPIO_Pin = GPIO_Pin_9;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &gpio_init);
+
+	GPIO_ResetBits(GPIOB, GPIO_Pin_9);
 }

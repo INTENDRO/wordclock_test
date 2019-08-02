@@ -27,6 +27,7 @@ SOFTWARE.
 ******************************************************************************
 */
 
+
 /* Includes */
 #include <stddef.h>
 #include "stm32f10x.h"
@@ -40,21 +41,24 @@ SOFTWARE.
 int main(void)
 {
 	int i = 0;
-
+	GPIO_InitTypeDef gpio_init;
 
 	SystemInit();
 
-	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
-	GPIOC->CRH = GPIO_CRH_MODE13_0;
-	GPIOC->ODR |= GPIO_ODR_ODR13;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+
+	gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio_init.GPIO_Pin = GPIO_Pin_13;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOC, &gpio_init);
 
 	//ws2812_init();
 
 	while(1)
 	{
-		GPIOC->BSRR = GPIO_BSRR_BS13;
+		GPIO_SetBits(GPIOC, GPIO_Pin_13);
 		wait_1ms(1000);
-		GPIOC->BSRR = GPIO_BSRR_BR13;
+		GPIO_ResetBits(GPIOC, GPIO_Pin_13);
 		wait_1ms(1000);
 	}
 }
