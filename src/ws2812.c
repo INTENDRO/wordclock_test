@@ -37,6 +37,7 @@ void ws2812_timer_init(void)
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
 
 	RCC_GetClocksFreq(&sys_clocks);
 
@@ -58,7 +59,6 @@ void ws2812_timer_init(void)
 	gpio_init.GPIO_Pin = GPIO_Pin_0;
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &gpio_init);
-
 
 	TIM_Cmd(TIM2, ENABLE);
 }
