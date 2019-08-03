@@ -30,10 +30,10 @@ SOFTWARE.
 
 /* Includes */
 #include <stddef.h>
+#include <stdio.h>
 #include "stm32f10x.h"
 #include "delay.h"
 #include "ws2812.h"
-
 
 
 
@@ -53,6 +53,7 @@ int main(void)
 	GPIO_Init(GPIOC, &gpio_init);
 
 	//ws2812_init();
+	ws2812_timer_init();
 
 	while(1)
 	{

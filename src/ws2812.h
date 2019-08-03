@@ -10,4 +10,6 @@
 
 void ws2812_init(void);
 
+void ws2812_timer_init(void);
+
 #endif /* WS2812_H_ */
