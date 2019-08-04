@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include "stm32f10x.h"
 
-
+uint16_t pwm_values[8] = {30,60,30,60,30,30,60,60};
 /************************
  * WS2812 prototype functions
  *
@@ -34,10 +34,11 @@ void ws2812_timer_init(void)
 	TIM_OCInitTypeDef oc_init;
 	GPIO_InitTypeDef gpio_init;
 	RCC_ClocksTypeDef sys_clocks;
+	DMA_InitTypeDef dma_init;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
 	RCC_GetClocksFreq(&sys_clocks);
 
@@ -52,13 +53,35 @@ void ws2812_timer_init(void)
 	oc_init.TIM_OCMode = TIM_OCMode_PWM1;
 	oc_init.TIM_OutputState = TIM_OutputState_Enable;
 	oc_init.TIM_OCPolarity = TIM_OCPolarity_High;
-	oc_init.TIM_Pulse = 45;
+	oc_init.TIM_Pulse = 30;
 	TIM_OC1Init(TIM2, &oc_init);
+	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);
+
+	TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Repetitive);
+
+	TIM_DMAConfig(TIM2, TIM_DMABase_CCR1, TIM_DMABurstLength_1Transfer);
+	TIM_DMACmd(TIM2, TIM_DMA_CC1, ENABLE);
 
 	gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
 	gpio_init.GPIO_Pin = GPIO_Pin_0;
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &gpio_init);
+
+	DMA_StructInit(&dma_init);
+	dma_init.DMA_PeripheralBaseAddr = (uint32_t)(&TIM2->DMAR);
+	dma_init.DMA_MemoryBaseAddr = (uint32_t)pwm_values;
+	dma_init.DMA_DIR = DMA_DIR_PeripheralDST;
+	dma_init.DMA_BufferSize = 8;
+	dma_init.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	dma_init.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	dma_init.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+	dma_init.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+	dma_init.DMA_Mode = DMA_Mode_Circular;
+	dma_init.DMA_Priority = DMA_Priority_Low;
+	dma_init.DMA_M2M = DMA_M2M_Disable;
+	DMA_Init(DMA1_Channel5, &dma_init);
+	DMA_Cmd(DMA1_Channel5, ENABLE);
+
 
 	TIM_Cmd(TIM2, ENABLE);
 }

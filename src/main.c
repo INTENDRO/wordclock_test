@@ -55,6 +55,8 @@ int main(void)
 	//ws2812_init();
 	ws2812_timer_init();
 
+
+
 	while(1)
 	{
 		GPIO_SetBits(GPIOC, GPIO_Pin_13);
