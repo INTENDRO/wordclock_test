@@ -52,8 +52,8 @@ int main(void)
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &gpio_init);
 
-	//ws2812_init();
-	ws2812_timer_init();
+	ws2812_init();
+	ws2812_init_debug_pin();
 	ws2812_start();
 
 

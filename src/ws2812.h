@@ -9,7 +9,8 @@
 #define WS2812_H_
 
 void ws2812_init(void);
-
-void ws2812_timer_init(void);
+void ws2812_init_debug_pin(void);
+void ws2812_start(void);
+void ws2812_stop(void);
 
 #endif /* WS2812_H_ */
