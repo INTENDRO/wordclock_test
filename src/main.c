@@ -54,7 +54,7 @@ int main(void)
 
 	//ws2812_init();
 	ws2812_timer_init();
-
+	ws2812_start();
 
 
 	while(1)
