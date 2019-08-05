@@ -54,7 +54,8 @@ int main(void)
 
 	ws2812_init();
 	ws2812_init_debug_pin();
-	ws2812_start();
+	//ws2812_start();
+	ws2812_update(0);
 
 
 	while(1)

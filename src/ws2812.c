@@ -5,8 +5,32 @@
  *      Author: Mario
  */
 
+
+/*
+ * TO DO:
+ * - maximum led count == 255 because uint8_t is used for indexing in many functions
+ *
+ *
+ *
+ */
+
 #include <stddef.h>
 #include "stm32f10x.h"
+#include "ws2812.h"
+
+
+#define WS2812_LED_COUNT 				(8)
+#define WS2812_BYTES_PER_LED 			(3)
+#define WS2812_RAW_BYTES_PER_LED 		(8*WS2812_BYTES_PER_LED)
+#define WS2812_DUTYCYCLE_ARRAY_LENGTH 	(2 * WS2812_RAW_BYTES_PER_LED)
+
+static uint8_t rgb_values[WS2812_LED_COUNT][WS2812_BYTES_PER_LED]; // default initialization to zero
+static uint16_t data_dutycycles[WS2812_DUTYCYCLE_ARRAY_LENGTH];
+
+static volatile uint8_t is_updating = 0;
+
+static void start_led_update(void);
+static void load_rgb_to_duty(uint8_t led_index, uint16_t* duty_ptr);
 
 uint16_t pwm_values[8] = {30,60,30,60,30,30,60,60};
 
@@ -82,6 +106,12 @@ void ws2812_init(void)
 	gpio_init.GPIO_Pin = GPIO_Pin_0;
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &gpio_init);
+
+
+	rgb_values[0][0] = 0x3A;
+	rgb_values[0][1] = 0xCC;
+	rgb_values[0][2] = 0x77;
+
 }
 
 void ws2812_start(void)
@@ -104,6 +134,62 @@ void ws2812_start(void)
 void ws2812_stop(void)
 {
 
+}
+
+int8_t ws2812_update(uint8_t block)
+{
+	if(is_updating)
+	{
+		return -1;
+	}
+	is_updating = 1;
+
+	start_led_update();
+	if(block)
+	{
+		while(!ws2812_update_finished());
+	}
+	return 0;
+}
+
+
+uint8_t ws2812_update_finished(void)
+{
+	return !is_updating;
+}
+
+static void start_led_update(void)
+{
+	// fill first two leds in buffer!!!!!
+	load_rgb_to_duty(0, &data_dutycycles[0]);
+	load_rgb_to_duty(1, &data_dutycycles[WS2812_RAW_BYTES_PER_LED]);
+
+
+	DMA_Cmd(DMA1_Channel5, DISABLE); // Disable to be sure. DMA needs to be disabled for DMA data count to be set (CNDTR)
+	DMA1_Channel5->CMAR = (uint32_t)data_dutycycles;
+	DMA1_Channel5->CCR &= ~DMA_CCR5_CIRC; // normal mode
+	//DMA1_Channel5->CCR |= DMA_CCR5_CIRC; // circular mode
+	DMA1_Channel5->CNDTR = WS2812_DUTYCYCLE_ARRAY_LENGTH;
+	TIM_SetCompare1(TIM2, 0);
+	TIM_GenerateEvent(TIM2, TIM_EventSource_Update); // reset timer counter, prescaler and load shadow registers
+	TIM_DMACmd(TIM2, TIM_DMA_CC1, DISABLE); // Disable to be sure. Clear possible DMA requests
+	TIM_DMACmd(TIM2, TIM_DMA_CC1, ENABLE);
+	DMA_Cmd(DMA1_Channel5, ENABLE);
+
+	TIM_CCxCmd(TIM2, TIM_Channel_1, TIM_CCx_Enable); // enable PWM output on pin (low because of 0 dutycycle)
+	TIM_Cmd(TIM2, ENABLE); // start waveform generation
+}
+
+static void load_rgb_to_duty(uint8_t led_index, uint16_t* duty_ptr)
+{
+	uint8_t i;
+
+	for(i=0; i<8; i++)
+	{
+		duty_ptr[i] = (rgb_values[led_index][0] & (1 << (7-i))) ? 60 : 30;
+		duty_ptr[i+8] = (rgb_values[led_index][1] & (1 << (7-i))) ? 60 : 30;
+		duty_ptr[i+16] = (rgb_values[led_index][2] & (1 << (7-i))) ? 60 : 30;
+	}
 }
 
 void DMA1_Channel5_IRQHandler(void)
