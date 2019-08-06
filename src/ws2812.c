@@ -28,9 +28,17 @@ static uint8_t rgb_values[WS2812_LED_COUNT][WS2812_BYTES_PER_LED]; // default in
 static uint16_t data_dutycycles[WS2812_DUTYCYCLE_ARRAY_LENGTH];
 
 static volatile uint8_t is_updating = 0;
+static volatile uint8_t led_index = 0;
 
 static void start_led_update(void);
 static void load_rgb_to_duty(uint8_t led_index, uint16_t* duty_ptr);
+static void led_update_handler(uint8_t irq_type);
+
+typedef enum
+{
+	IRQ_HT,
+	IRQ_TC
+}dma_irq_t;
 
 uint16_t pwm_values[8] = {30,60,30,60,30,30,60,60};
 
@@ -108,9 +116,12 @@ void ws2812_init(void)
 	GPIO_Init(GPIOA, &gpio_init);
 
 
-	rgb_values[0][0] = 0x3A;
-	rgb_values[0][1] = 0xCC;
-	rgb_values[0][2] = 0x77;
+	rgb_values[0][0] = 0x01;
+	rgb_values[0][1] = 0x03;
+	rgb_values[0][2] = 0x07;
+	//rgb_values[1][0] = 0x0F;
+	//rgb_values[1][1] = 0x1F;
+	//rgb_values[1][2] = 0x3F;
 
 }
 
@@ -161,8 +172,11 @@ uint8_t ws2812_update_finished(void)
 static void start_led_update(void)
 {
 	// fill first two leds in buffer!!!!!
-	load_rgb_to_duty(0, &data_dutycycles[0]);
-	load_rgb_to_duty(1, &data_dutycycles[WS2812_RAW_BYTES_PER_LED]);
+	led_index = 0;
+	load_rgb_to_duty(led_index, &data_dutycycles[0]);
+	led_index++;
+	load_rgb_to_duty(led_index, &data_dutycycles[WS2812_RAW_BYTES_PER_LED]);
+	led_index++;
 
 
 	DMA_Cmd(DMA1_Channel5, DISABLE); // Disable to be sure. DMA needs to be disabled for DMA data count to be set (CNDTR)
@@ -192,16 +206,33 @@ static void load_rgb_to_duty(uint8_t led_index, uint16_t* duty_ptr)
 	}
 }
 
+/*
+ * irq_type
+ */
+static void led_update_handler(dma_irq_t irq_type)
+{
+	switch(irq_type)
+	{
+	case IRQ_HT:
+		break;
+
+	case IRQ_TC:
+		break;
+	}
+}
+
 void DMA1_Channel5_IRQHandler(void)
 {
 	if(DMA_GetFlagStatus(DMA1_FLAG_HT5) == SET)
 	{
 		DMA_ClearITPendingBit(DMA1_IT_HT5);
-		GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_SET);
+		led_update_handler(IRQ_HT);
+		//GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_SET);
 	}
 	else if(DMA_GetFlagStatus(DMA1_FLAG_TC5) == SET)
 	{
 		DMA_ClearITPendingBit(DMA1_IT_TC5);
-		GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_RESET);
+		led_update_handler(IRQ_TC);
+		//GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_RESET);
 	}
 }
