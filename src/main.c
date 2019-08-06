@@ -54,6 +54,8 @@ int main(void)
 
 	ws2812_init();
 	ws2812_init_debug_pin();
+	ws2812_set_color_all(0xAA,0xCC,0xFF);
+	ws2812_set_color(0, 0x01, 0x03, 0x07);
 	//ws2812_start();
 	ws2812_update(0);
 

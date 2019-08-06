@@ -19,7 +19,7 @@
 #include "ws2812.h"
 
 
-#define WS2812_LED_COUNT 				(2)
+#define WS2812_LED_COUNT 				(4)
 #define WS2812_BYTES_PER_LED 			(3)
 #define WS2812_RAW_BYTES_PER_LED 		(8*WS2812_BYTES_PER_LED)
 #define WS2812_DUTYCYCLE_ARRAY_LENGTH 	(2 * WS2812_RAW_BYTES_PER_LED)
@@ -149,12 +149,29 @@ void ws2812_stop(void)
 
 int8_t ws2812_set_color(uint8_t index, uint8_t red, uint8_t green, uint8_t blue)
 {
-
+	if(index < WS2812_LED_COUNT)
+	{
+		rgb_values[index][0] = red;
+		rgb_values[index][1] = green;
+		rgb_values[index][2] = blue;
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 void ws2812_set_color_all(uint8_t red, uint8_t green, uint8_t blue)
 {
+	uint8_t i;
 
+	for(i=0; i<WS2812_LED_COUNT; i++)
+	{
+		rgb_values[i][0] = red;
+		rgb_values[i][1] = green;
+		rgb_values[i][2] = blue;
+	}
 }
 
 int8_t ws2812_update(uint8_t block)
