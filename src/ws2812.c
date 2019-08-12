@@ -176,7 +176,6 @@ void ws2812_set_color_all(uint8_t red, uint8_t green, uint8_t blue)
 
 int8_t ws2812_update(uint8_t block)
 {
-	GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_SET);
 	if(is_updating)
 	{
 		return -1;
@@ -188,7 +187,6 @@ int8_t ws2812_update(uint8_t block)
 	{
 		while(!ws2812_update_finished());
 	}
-	GPIO_WriteBit(GPIOA, GPIO_Pin_1, Bit_RESET);
 	return 0;
 }
 

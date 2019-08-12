@@ -33,7 +33,7 @@ SOFTWARE.
 #include <stdio.h>
 #include "stm32f10x.h"
 #include "delay.h"
-#include "ws2812.h"
+#include "wordclock.h"
 
 
 
@@ -44,6 +44,7 @@ int main(void)
 	GPIO_InitTypeDef gpio_init;
 
 	SystemInit();
+	wordclock_init();
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 
@@ -52,40 +53,8 @@ int main(void)
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &gpio_init);
 
-	ws2812_init();
-	ws2812_init_debug_pin();
-	ws2812_set_color_all(0x00,0x00,0x00);
-	ws2812_update(0);
-	wait_1ms(500);
-	while(1)
-	{
-		ws2812_set_color_all(0x0F,0x00,0x00);
-		ws2812_update(0);
-		wait_1ms(500);
-		ws2812_set_color_all(0x00,0x0F,0x00);
-		ws2812_update(0);
-		wait_1ms(500);
-		ws2812_set_color_all(0x00,0x00,0x0F);
-		ws2812_update(0);
-		wait_1ms(500);
-		ws2812_set_color_all(0x0F,0x0F,0x0F);
-		ws2812_update(0);
-		wait_1ms(500);
-		ws2812_set_color(1,0x0F,0x00,0x00);
-		ws2812_set_color(2,0x0F,0x00,0x00);
-		ws2812_set_color(3,0x0F,0x00,0x00);
-		ws2812_set_color(4,0x0F,0x00,0x00);
-		ws2812_set_color(5,0x00,0x0F,0x00);
-		ws2812_set_color(6,0x00,0x0F,0x00);
-		ws2812_set_color(7,0x00,0x0F,0x00);
-		ws2812_set_color(8,0x00,0x00,0x0F);
-		ws2812_set_color(9,0x00,0x00,0x0F);
-		ws2812_set_color(10,0x00,0x00,0x0F);
-		ws2812_set_color(11,0x00,0x00,0x0F);
-		ws2812_update(0);
-		wait_1ms(500);
 
-	}
+	wordclock_demo();
 
 	while(1)
 	{
