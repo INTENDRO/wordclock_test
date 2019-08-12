@@ -174,6 +174,23 @@ void ws2812_set_color_all(uint8_t red, uint8_t green, uint8_t blue)
 	}
 }
 
+int8_t ws2812_set_color_range(uint8_t start, uint8_t stop, uint8_t red, uint8_t green, uint8_t blue)
+{
+	uint8_t i;
+
+	if((start>stop) || (start>=WS2812_LED_COUNT) || (stop>WS2812_LED_COUNT))
+	{
+		return -1;
+	}
+
+	for(i=start; i<stop; i++)
+	{
+		rgb_values[i][0] = green;
+		rgb_values[i][1] = red;
+		rgb_values[i][2] = blue;
+	}
+}
+
 int8_t ws2812_update(uint8_t block)
 {
 	if(is_updating)

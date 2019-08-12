@@ -22,6 +22,17 @@ void wordclock_demo(void)
 	ws2812_set_color_all(0x00,0x00,0x00);
 	ws2812_update(0);
 	wait_1ms(500);
+
+	ws2812_set_color_range(4, 8, 0x00, 0x1F, 0x1F);
+	ws2812_update(0);
+	wait_1ms(500);
+
+	ws2812_set_color_range(4, 18, 0x00, 0x00, 0x1F);
+	ws2812_update(0);
+	wait_1ms(500);
+
+	while(1);
+
 	while(1)
 	{
 		ws2812_set_color_all(0x0F,0x00,0x00);
