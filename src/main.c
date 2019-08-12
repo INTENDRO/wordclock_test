@@ -55,6 +55,7 @@ int main(void)
 
 
 	wordclock_demo();
+	//wordclock_display_word_time(0);
 
 	while(1)
 	{
