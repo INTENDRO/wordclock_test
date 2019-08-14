@@ -10,6 +10,7 @@
 
 void wordclock_init(void);
 void wordclock_demo(void);
+void wordclock_demo_time(void);
 void wordclock_display_word_time(uint16_t time);
 
 #endif /* WORDCLOCK_H_ */

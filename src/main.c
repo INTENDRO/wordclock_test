@@ -54,8 +54,9 @@ int main(void)
 	GPIO_Init(GPIOC, &gpio_init);
 
 
-	wordclock_demo();
-	//wordclock_display_word_time(0);
+	//wordclock_demo();
+	//wordclock_display_word_time(288);
+	wordclock_demo_time();
 
 	while(1)
 	{
